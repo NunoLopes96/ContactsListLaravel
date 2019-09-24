@@ -1,0 +1,39 @@
+{
+    "name": "nuno/laravel-contacts-api",
+    "description": "PSR-4 Package for Contacts Management Backend with Laravel using API",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nuno Lopes",
+            "email": "nunolopes96pt@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "NunoLopes\\LaravelContactsAPI\\": "src/"
+        },
+        "files": ["src/helpers.php"]
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url":  "/home/nuno/Documents/LaravelContacts/DomainContacts"
+        }
+    ],
+    "require": {
+        "php": "~7.2",
+        "laravel/passport": "^7.3",
+        "nuno/domain-contacts": "*"
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": [],
+            "providers": [
+                "NunoLopes\\LaravelContactsAPI\\ServiceProvider",
+                "Laravel\\Passport\\PassportServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
