@@ -11,8 +11,7 @@
     "autoload": {
         "psr-4": {
             "NunoLopes\\LaravelContactsAPI\\": "src/"
-        },
-        "files": ["src/helpers.php"]
+        }
     },
     "repositories": [
         {
