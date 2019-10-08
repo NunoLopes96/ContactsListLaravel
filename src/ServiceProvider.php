@@ -80,8 +80,6 @@ class ServiceProvider extends BaseServiceProvider
             ->group(
                 __DIR__ . '/../routes/api.php'
             );
-
-        $this->loadRoutesFrom(__DIR__ . '/../routes/routes.php');
     }
 
     /**
