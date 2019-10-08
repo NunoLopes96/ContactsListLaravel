@@ -3,17 +3,19 @@ namespace NunoLopes\LaravelContactsAPI;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use NunoLopes\DomainContacts\Contracts\Database\AccessTokenRepository;
-use NunoLopes\DomainContacts\Contracts\Database\ContactsRepository;
-use NunoLopes\DomainContacts\Contracts\Database\UsersRepository;
+use NunoLopes\DomainContacts\Contracts\Repositories\Database\AccessTokenRepository;
+use NunoLopes\DomainContacts\Contracts\Repositories\Database\ContactsRepository;
+use NunoLopes\DomainContacts\Contracts\Repositories\Database\UsersRepository;
 use NunoLopes\DomainContacts\Contracts\Services\AuthenticationTokenService;
-use NunoLopes\DomainContacts\Contracts\Utilities\AsymmetricCryptography;
 use NunoLopes\DomainContacts\Contracts\Utilities\Authentication;
+use NunoLopes\DomainContacts\Contracts\Utilities\RsaSignature;
+use NunoLopes\DomainContacts\Datatypes\AsymmetricCryptography;
+use NunoLopes\DomainContacts\Factories\Repositories\ConfigurationRepositoryFactory;
 use NunoLopes\DomainContacts\Repositories\Database\Eloquent\EloquentAccessTokenRepository;
 use NunoLopes\DomainContacts\Repositories\Database\Eloquent\EloquentContactsRepository;
 use NunoLopes\DomainContacts\Repositories\Database\Eloquent\EloquentUsersRepository;
 use NunoLopes\DomainContacts\Services\AuthenticationToken\JwtAuthenticationTokenService;
-use NunoLopes\LaravelContactsAPI\Utilities\LaravelAsymmetricCryptography;
+use NunoLopes\DomainContacts\Utilities\Signatures\Sha256RsaSignature;
 use NunoLopes\LaravelContactsAPI\Utilities\LaravelAuthentication;
 
 /**
@@ -26,6 +28,20 @@ use NunoLopes\LaravelContactsAPI\Utilities\LaravelAuthentication;
 class ServiceProvider extends BaseServiceProvider
 {
     /**
+     * All of the container singletons that should be registered.
+     *
+     * @var array
+     */
+    public $singletons = [
+        ContactsRepository::class         => EloquentContactsRepository::class,
+        UsersRepository::class            => EloquentUsersRepository::class,
+        Authentication::class             => LaravelAuthentication::class,
+        AccessTokenRepository::class      => EloquentAccessTokenRepository::class,
+        AuthenticationTokenService::class => JwtAuthenticationTokenService::class,
+        RsaSignature::class               => Sha256RsaSignature::class
+    ];
+
+    /**
      * Bootstrap any application services.
      *
      * @return void
@@ -37,41 +53,19 @@ class ServiceProvider extends BaseServiceProvider
 
         $this->handleRoutes();
         $this->handleViews();
+        $this->handleInstances();
     }
 
     /**
-     * Register any application services.
-     *
-     * This function will bind Contracts with eloquent classes so we can have
-     * dependency injections without using Factories for example.
+     * Register instances for the constructors..
      *
      * @return void
      */
-    public function register(): void
+    private function handleInstances(): void
     {
-        $this->app->bind(
-            ContactsRepository::class,
-            EloquentContactsRepository::class
-        );
-        $this->app->bind(
-            UsersRepository::class,
-            EloquentUsersRepository::class
-        );
-        $this->app->bind(
-            Authentication::class,
-            LaravelAuthentication::class
-        );
-        $this->app->bind(
-            AccessTokenRepository::class,
-            EloquentAccessTokenRepository::class
-        );
-        $this->app->bind(
-            AuthenticationTokenService::class,
-            JwtAuthenticationTokenService::class
-        );
-        $this->app->bind(
+        $this->app->instance(
             AsymmetricCryptography::class,
-            LaravelAsymmetricCryptography::class
+            ConfigurationRepositoryFactory::get()->getRSA()
         );
     }
 
