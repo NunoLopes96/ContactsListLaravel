@@ -21,7 +21,6 @@
     ],
     "require": {
         "php": "~7.2",
-        "laravel/passport": "^7.3",
         "nuno/domain-contacts": "*"
     },
     "extra": {
