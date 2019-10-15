@@ -12,4 +12,4 @@ Route::resource('contacts', ContactsController::class);
 Route::get('/user', AuthenticationController::class . '@user');
 Route::post('/login', AuthenticationController::class . '@login');
 Route::post('/register', AuthenticationController::class . '@register');
-Route::get('/logout', AuthenticationController::class . '@logout');
+Route::post('/logout', AuthenticationController::class . '@logout');
