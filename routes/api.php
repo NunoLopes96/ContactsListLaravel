@@ -10,6 +10,6 @@ Route::resource('contacts', ContactsController::class);
 
 // Authentication Routes.
 Route::get('/user', AuthenticationController::class . '@user');
-Route::post('/login', AuthenticationController::class . '@login');
-Route::post('/register', AuthenticationController::class . '@register');
-Route::post('/logout', AuthenticationController::class . '@logout');
+Route::post('/user/login', AuthenticationController::class . '@login');
+Route::post('/user/register', AuthenticationController::class . '@register');
+Route::post('/user/logout', AuthenticationController::class . '@logout');
