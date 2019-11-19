@@ -27,8 +27,7 @@
         "laravel": {
             "dont-discover": [],
             "providers": [
-                "NunoLopes\\LaravelContactsAPI\\ServiceProvider",
-                "Laravel\\Passport\\PassportServiceProvider"
+                "NunoLopes\\LaravelContactsAPI\\ServiceProvider"
             ]
         }
     },
