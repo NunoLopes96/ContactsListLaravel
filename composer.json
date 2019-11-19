@@ -31,6 +31,11 @@
             ]
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    "minimum-stability": "stable",
+    "require-dev": {
+        "laravel/framework": "^6.1",
+        "laravel/laravel": "^6.4",
+        "codeception/codeception": "^3.1",
+        "codeception/remote-debug": "^0.3.0"
+    }
 }
