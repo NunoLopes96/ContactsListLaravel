@@ -1,0 +1,9 @@
+actor: ApiTester
+
+modules:
+    enabled:
+        - \Helper\Api
+        - Asserts
+        - REST:
+             url: http://contacts
+             depends: PhpBrowser
