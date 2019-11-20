@@ -8,13 +8,13 @@ use NunoLopes\DomainContacts\Factories\Database\Eloquent\CapsuleFactory;
 use NunoLopes\DomainContacts\Factories\Services\AccessTokenServiceFactory;
 
 /**
- * Class ContactCest.
+ * Class ContactsCest.
  *
  * This class will test the API related with the operations on the contacts.
  *
  * @package NunoLopes\LaravelContactsAPI
  */
-class ContactCest
+class ContactsCest
 {
     /**
      * @var string $authToken - Authentication token of the initial user.

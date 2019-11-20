@@ -3,13 +3,13 @@
 use NunoLopes\DomainContacts\Factories\Database\Eloquent\CapsuleFactory;
 
 /**
- * Class CreateUserCest.
+ * Class AuthenticationCest.
  *
  * This class will test the API related with the authentications.
  *
  * @package NunoLopes\LaravelContactsAPI
  */
-class CreateUserCest
+class AuthenticationCest
 {
     /**
      * @var string $username - Random username generated.
