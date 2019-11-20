@@ -13,15 +13,9 @@
             "NunoLopes\\LaravelContactsAPI\\": "src/"
         }
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url":  "/home/nuno/Documents/LaravelContacts/DomainContacts"
-        }
-    ],
     "require": {
         "php": "~7.2",
-        "nuno/domain-contacts": "*"
+        "nuno/domain-contacts": "^1."
     },
     "extra": {
         "laravel": {
@@ -33,9 +27,9 @@
     },
     "minimum-stability": "stable",
     "require-dev": {
-        "laravel/framework": "^6.1",
-        "laravel/laravel": "^6.4",
         "codeception/codeception": "^3.1",
-        "codeception/remote-debug": "^0.3.0"
+        "codeception/remote-debug": "^0.3.0",
+        "laravel/framework": "^6.5",
+        "laravel/laravel": "^6.4"
     }
 }
