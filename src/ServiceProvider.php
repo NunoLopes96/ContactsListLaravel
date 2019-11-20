@@ -1,22 +1,26 @@
 <?php
 namespace NunoLopes\LaravelContactsAPI;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use NunoLopes\DomainContacts\Contracts\Repositories\Database\AccessTokenRepository;
 use NunoLopes\DomainContacts\Contracts\Repositories\Database\ContactsRepository;
 use NunoLopes\DomainContacts\Contracts\Repositories\Database\UsersRepository;
 use NunoLopes\DomainContacts\Contracts\Services\AuthenticationTokenService;
-use NunoLopes\DomainContacts\Contracts\Utilities\Authentication;
+use NunoLopes\DomainContacts\Contracts\Utilities\Authentication as AuthenticationContract;
 use NunoLopes\DomainContacts\Contracts\Utilities\RsaSignature;
 use NunoLopes\DomainContacts\Datatypes\AsymmetricCryptography;
+use NunoLopes\DomainContacts\Exceptions\BaseException;
+use NunoLopes\DomainContacts\Exceptions\Services\Authentication\TokenRevokedException;
 use NunoLopes\DomainContacts\Factories\Repositories\ConfigurationRepositoryFactory;
+use NunoLopes\DomainContacts\Factories\Services\AccessTokenServiceFactory;
 use NunoLopes\DomainContacts\Repositories\Database\Eloquent\EloquentAccessTokenRepository;
 use NunoLopes\DomainContacts\Repositories\Database\Eloquent\EloquentContactsRepository;
 use NunoLopes\DomainContacts\Repositories\Database\Eloquent\EloquentUsersRepository;
 use NunoLopes\DomainContacts\Services\AuthenticationToken\JwtAuthenticationTokenService;
+use NunoLopes\DomainContacts\Utilities\Authentication;
 use NunoLopes\DomainContacts\Utilities\Signatures\Sha256RsaSignature;
-use NunoLopes\LaravelContactsAPI\Utilities\LaravelAuthentication;
 
 /**
  * Class AuthenticationController.
@@ -35,7 +39,6 @@ class ServiceProvider extends BaseServiceProvider
     public $singletons = [
         ContactsRepository::class         => EloquentContactsRepository::class,
         UsersRepository::class            => EloquentUsersRepository::class,
-        Authentication::class             => LaravelAuthentication::class,
         AccessTokenRepository::class      => EloquentAccessTokenRepository::class,
         AuthenticationTokenService::class => JwtAuthenticationTokenService::class,
         RsaSignature::class               => Sha256RsaSignature::class
@@ -57,7 +60,7 @@ class ServiceProvider extends BaseServiceProvider
     }
 
     /**
-     * Register instances for the constructors..
+     * Register instances for the constructors.
      *
      * @return void
      */
@@ -66,6 +69,26 @@ class ServiceProvider extends BaseServiceProvider
         $this->app->instance(
             AsymmetricCryptography::class,
             ConfigurationRepositoryFactory::get()->getRSA()
+        );
+
+        $request = Request::createFromGlobals();
+
+        $accessToken = null;
+        try {
+            if ($request->bearerToken() !== null) {
+                $accessToken = AccessTokenServiceFactory::get()->getAccessToken($request->bearerToken());
+
+                if ($accessToken->revoked()) {
+                    throw new TokenRevokedException();
+                }
+            }
+        } catch (BaseException $e) {
+            abort($e->getCode(), $e->getMessage());
+        }
+
+        $this->app->instance(
+            AuthenticationContract::class,
+            new Authentication($accessToken)
         );
     }
 
