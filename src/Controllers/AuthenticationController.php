@@ -1,21 +1,18 @@
 <?php
 namespace NunoLopes\LaravelContactsAPI\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use NunoLopes\DomainContacts\Exceptions\BaseException;
 use NunoLopes\DomainContacts\Exceptions\Repositories\Users\UserNotFoundException;
 use NunoLopes\DomainContacts\Exceptions\Services\Authentication\PasswordMismatchException;
 use NunoLopes\DomainContacts\Requests\Authentication\LoginUserRequest;
 use NunoLopes\DomainContacts\Requests\Authentication\RegisterUserRequest;
-use NunoLopes\DomainContacts\Services\AccessTokenService;
 use NunoLopes\DomainContacts\Services\AuthenticationService;
 
 /**
  * Class AuthenticationController.
  *
  * This class will be responsible for Authentication actions.
- *
- * @todo Handle exceptions with try/catch and right status code.
  *
  * @package NunoLopes\LaravelContactsAPI
  */
@@ -27,22 +24,13 @@ class AuthenticationController
     private $authenticationService = null;
 
     /**
-     * @var AccessTokenService - AccessToken Service instance.
-     */
-    private $accessTokenService = null;
-
-    /**
      * AuthenticationController constructor.
      *
      * @param AuthenticationService $authenticationService - Authentication Service instance.
-     * @param AccessTokenService    $accessTokenService    - Access Token Service instance.
      */
-    public function __construct(
-        AuthenticationService $authenticationService,
-        AccessTokenService $accessTokenService
-    ) {
+    public function __construct(AuthenticationService $authenticationService)
+    {
         $this->authenticationService = $authenticationService;
-        $this->accessTokenService    = $accessTokenService;
     }
 
     /**
@@ -54,9 +42,21 @@ class AuthenticationController
      */
     public function register (RegisterUserRequest $request): Response
     {
-        $token = $this->authenticationService->register($request->validated());
+        if ($request->fails()) {
+            return response([ 'errors' => $request->errors() ], 422);
+        }
 
-        return response($token, 200);
+        try {
+            $token = $this->authenticationService->register(
+                $request->name(),
+                $request->email(),
+                $request->password()
+            );
+        } catch (BaseException $e) {
+            abort($e->getCode(), $e->getMessage());
+        }
+
+        return response([ 'data' => $token ], 200);
     }
 
     /**
@@ -73,21 +73,34 @@ class AuthenticationController
      */
     public function login(LoginUserRequest $request): Response
     {
-        $token = $this->authenticationService->login($request->validated());
+        if ($request->fails()) {
+            return response([ 'errors' => $request->errors() ], 422);
+        }
 
-        return response($token, 200);
+        try {
+            $token = $this->authenticationService->login(
+                $request->name(),
+                $request->password()
+            );
+        } catch (BaseException $e) {
+            abort($e->getCode(), $e->getMessage());
+        }
+
+        return response([ 'data' => $token ], 200);
     }
 
     /**
      * Returns the loggedin user.
      *
-     * @param Request $request - User's Request.
-     *
      * @return Response
      */
-    public function user(Request $request): Response
+    public function user(): Response
     {
-        $user = $this->accessTokenService->getTokenUser($request->bearerToken());
+        try {
+            $user = $this->authenticationService->user();
+        } catch (BaseException $e) {
+            abort($e->getCode(), $e->getMessage());
+        }
 
         return response()
             ->view('laravel-contacts-api::authentication.user', [ 'user' => $user ], 200);
@@ -96,13 +109,15 @@ class AuthenticationController
     /**
      * Logs out an existent user by revoking the token that is being used.
      *
-     * @param Request $request - LogoutUser's Request.
-     *
      * @return Response
      */
-    public function logout(Request $request): Response
+    public function logout(): Response
     {
-        $this->accessTokenService->revokeToken($request->bearerToken());
+        try {
+            $this->authenticationService->logout();
+        } catch (BaseException $e) {
+            abort($e->getCode(), $e->getMessage());
+        }
 
         return response(null, 204);
     }
